@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { joinRoom, leaveRoom, toggleAudio, toggleVideo, setCallbacks } from './webrtc';
+import './VideoCall.css';
 
-export default function VideoCall() {
+function VideoCall() {
   const [roomId, setRoomId] = useState('');
   const [inCall, setInCall] = useState(false);
   const [connectionState, setConnectionState] = useState('idle');
@@ -115,155 +116,198 @@ export default function VideoCall() {
 
   if (!inCall) {
     return (
-      <div style={{ padding: '20px', textAlign: 'center' }}>
-        <h1>Simple Video Call</h1>
-        <div style={{ margin: '20px 0' }}>
-          <input
-            type="text"
-            placeholder="Enter room ID"
-            value={roomId}
-            onChange={(e) => setRoomId(e.target.value)}
-            style={{ padding: '10px', marginRight: '10px', fontSize: '16px' }}
-            onKeyPress={(e) => e.key === 'Enter' && handleJoinRoom()}
-          />
-          <button 
-            onClick={handleJoinRoom}
-            disabled={!roomId.trim()}
-            style={{ 
-              padding: '10px 20px', 
-              fontSize: '16px', 
-              backgroundColor: '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer'
-            }}
-          >
-            Join Room
-          </button>
+      <div className="join-container">
+        <div className="join-card">
+          <div className="join-header">
+            <h1 className="join-title">🎥 Video Call</h1>
+            <p className="join-subtitle">Connect with friends and colleagues instantly</p>
+          </div>
+          
+          <div className="join-form">
+            <div className="input-group">
+              <label htmlFor="roomId" className="input-label">Room ID</label>
+              <div className="input-row">
+                <input
+                  id="roomId"
+                  type="text"
+                  placeholder="Enter room ID (e.g., MEET123)"
+                  value={roomId}
+                  onChange={(e) => setRoomId(e.target.value.toUpperCase())}
+                  onKeyPress={(e) => e.key === 'Enter' && handleJoinRoom()}
+                  className="room-input"
+                  maxLength={10}
+                />
+                <button 
+                  type="button"
+                  onClick={() => setRoomId(Math.random().toString(36).substring(2, 8).toUpperCase())}
+                  className="generate-btn"
+                  title="Generate random room ID"
+                >
+                  🎲
+                </button>
+              </div>
+            </div>
+            
+            <button 
+              onClick={handleJoinRoom}
+              disabled={!roomId.trim() || connectionState === 'connecting'}
+              className={`join-btn ${connectionState === 'connecting' ? 'joining' : ''}`}
+            >
+              {connectionState === 'connecting' ? (
+                <>
+                  <span className="spinner"></span>
+                  Connecting...
+                </>
+              ) : (
+                <>
+                  <span>🚀</span>
+                  Join Room
+                </>
+              )}
+            </button>
+            
+            {connectionState === 'error' && (
+              <div className="error-message">
+                <span>⚠️</span>
+                Failed to connect. Please try again.
+              </div>
+            )}
+          </div>
+          
+          <div className="feature-list">
+            <div className="feature-item">
+              <span className="feature-icon">🎤</span>
+              <span>Crystal clear audio</span>
+            </div>
+            <div className="feature-item">
+              <span className="feature-icon">📹</span>
+              <span>HD video quality</span>
+            </div>
+            <div className="feature-item">
+              <span className="feature-icon">🔒</span>
+              <span>Secure & private</span>
+            </div>
+          </div>
         </div>
-        {connectionState === 'error' && (
-          <p style={{ color: 'red' }}>Failed to connect. Please try again.</p>
-        )}
       </div>
     );
   }
 
   return (
-    <div style={{ padding: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2>Room: {roomId}</h2>
-        <div>
-          <span style={{ 
-            padding: '5px 10px', 
-            borderRadius: '5px',
-            backgroundColor: connectionState === 'connected' ? '#28a745' : '#ffc107',
-            color: 'white',
-            marginRight: '10px'
-          }}>
-            {connectionState}
-          </span>
-          <button 
-            onClick={handleLeaveRoom}
-            style={{ 
-              padding: '10px 20px',
-              backgroundColor: '#dc3545',
-              color: 'white',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer'
-            }}
-          >
-            Leave
-          </button>
+    <div className="video-call-container">
+      {/* Header */}
+      <div className="call-header">
+        <div className="room-info">
+          <h2 className="room-title">📱 Room: {roomId}</h2>
+          <div className="connection-status">
+            <span className={`status-badge ${connectionState}`}>
+              {connectionState === 'connecting' && <span className="status-spinner"></span>}
+              <span className="status-dot"></span>
+              {connectionState}
+            </span>
+          </div>
         </div>
+        <button onClick={handleLeaveRoom} className="leave-btn">
+          <span>👋</span>
+          Leave Room
+        </button>
       </div>
 
-      <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+      {/* Video Grid */}
+      <div className="video-grid">
         {/* Local video */}
-        <div style={{ flex: 1 }}>
-          <h3>You</h3>
+        <div className="video-container local">
+          <div className="video-label">
+            <span className="label-icon">👤</span>
+            You
+          </div>
           <video
             ref={localVideoRef}
             autoPlay
             muted
             playsInline
-            style={{ 
-              width: '100%', 
-              maxWidth: '400px',
-              backgroundColor: '#000',
-              borderRadius: '10px'
-            }}
+            className="video-element"
           />
+          {!videoEnabled && (
+            <div className="video-placeholder">
+              <div className="placeholder-content">
+                <span className="placeholder-icon">📹</span>
+                <span>Camera off</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Remote video */}
-        <div style={{ flex: 1 }}>
-          <h3>Participant</h3>
-          {connectionState === 'connected' ? (
+        <div className="video-container remote">
+          <div className="video-label">
+            <span className="label-icon">👥</span>
+            Participant
+          </div>
+          {connectionState === 'connected' && remoteStreamState ? (
             <video
               ref={remoteVideoRef}
               autoPlay
               playsInline
-              style={{ 
-                width: '100%', 
-                maxWidth: '400px',
-                backgroundColor: '#000',
-                borderRadius: '10px'
-              }}
+              className="video-element"
             />
           ) : (
-            <div style={{ 
-              width: '100%', 
-              maxWidth: '400px',
-              height: '300px',
-              backgroundColor: '#f8f9fa',
-              borderRadius: '10px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#6c757d'
-            }}>
-              {connectionState === 'waiting' ? 'Waiting for participant...' : 'Connecting...'}
+            <div className="video-placeholder">
+              <div className="placeholder-content">
+                {connectionState === 'connecting' ? (
+                  <>
+                    <span className="spinner large"></span>
+                    <span>Connecting...</span>
+                  </>
+                ) : connectionState === 'waiting' ? (
+                  <>
+                    <span className="placeholder-icon">⏳</span>
+                    <span>Waiting for participant...</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="placeholder-icon">👥</span>
+                    <span>No participant yet</span>
+                  </>
+                )}
+              </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* Controls */}
-      <div style={{ textAlign: 'center' }}>
-        <button
-          onClick={handleToggleAudio}
-          style={{
-            padding: '15px',
-            margin: '0 10px',
-            borderRadius: '50%',
-            border: 'none',
-            backgroundColor: audioEnabled ? '#28a745' : '#dc3545',
-            color: 'white',
-            cursor: 'pointer',
-            fontSize: '20px'
-          }}
-        >
-          🎤
-        </button>
-        
-        <button
-          onClick={handleToggleVideo}
-          style={{
-            padding: '15px',
-            margin: '0 10px',
-            borderRadius: '50%',
-            border: 'none',
-            backgroundColor: videoEnabled ? '#28a745' : '#dc3545',
-            color: 'white',
-            cursor: 'pointer',
-            fontSize: '20px'
-          }}
-        >
-          📹
-        </button>
+      {/* Control Panel */}
+      <div className="control-panel">
+        <div className="controls">
+          <button
+            onClick={handleToggleAudio}
+            className={`control-btn audio ${!audioEnabled ? 'disabled' : ''}`}
+            title={audioEnabled ? 'Mute microphone' : 'Unmute microphone'}
+          >
+            <span className="control-icon">
+              {audioEnabled ? '🎤' : '🔇'}
+            </span>
+            <span className="control-label">
+              {audioEnabled ? 'Mute' : 'Unmute'}
+            </span>
+          </button>
+          
+          <button
+            onClick={handleToggleVideo}
+            className={`control-btn video ${!videoEnabled ? 'disabled' : ''}`}
+            title={videoEnabled ? 'Turn off camera' : 'Turn on camera'}
+          >
+            <span className="control-icon">
+              {videoEnabled ? '📹' : '📴'}
+            </span>
+            <span className="control-label">
+              {videoEnabled ? 'Stop Video' : 'Start Video'}
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   );
 }
+
+export default VideoCall;
