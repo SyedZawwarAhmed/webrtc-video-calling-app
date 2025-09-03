@@ -1,135 +1,185 @@
-# Turborepo starter
+# WebRTC Video Calling App
 
-This Turborepo starter is maintained by the Turborepo core team.
+A complete WebRTC-based video calling application built from scratch with a React frontend and Node.js signaling server.
 
-## Using this example
+## Features
 
-Run the following command:
+- **Peer-to-peer video calling** using raw WebRTC APIs
+- **Room-based calling** - create or join rooms with IDs
+- **Media controls** - toggle camera and microphone
+- **Real-time signaling** via WebSocket server
+- **Responsive UI** - works on desktop and mobile
+- **Permission management** - request camera/microphone access
+- **Connection status** - visual feedback for call states
+- **Error handling** - graceful error recovery
 
-```sh
-npx create-turbo@latest
-```
-
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
+## Project Structure
 
 ```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+webrtc-video-calling-app/
+├── apps/
+│   ├── frontend/           # React + TypeScript frontend
+│   │   ├── src/
+│   │   │   ├── components/ # UI components
+│   │   │   ├── hooks/      # React hooks
+│   │   │   ├── services/   # WebRTC and signaling services
+│   │   │   └── types/      # TypeScript definitions
+│   │   └── ...
+│   └── signaling-server/   # Node.js WebSocket signaling server
+│       ├── src/
+│       │   ├── types.ts
+│       │   ├── RoomManager.ts
+│       │   ├── SignalingServer.ts
+│       │   └── index.ts
+│       └── ...
+└── packages/               # Shared packages
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+## Getting Started
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+### Prerequisites
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+- Node.js 18+ 
+- pnpm (recommended) or npm
 
-### Develop
+### Installation
 
-To develop all apps and packages, run the following command:
+1. **Clone and install dependencies:**
+   ```bash
+   git clone <repository-url>
+   cd webrtc-video-calling-app
+   pnpm install
+   ```
 
-```
-cd my-turborepo
+2. **Build all applications:**
+   ```bash
+   pnpm run build
+   ```
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
+### Running the Application
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
+You need to run both the signaling server and the frontend:
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+#### Option 1: Run both together
+```bash
+pnpm run dev
 ```
 
-### Remote Caching
+#### Option 2: Run separately
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+**Terminal 1 - Signaling Server:**
+```bash
+pnpm run dev:signaling
+# Server runs on http://localhost:3001
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+**Terminal 2 - Frontend:**
+```bash
+pnpm run dev:frontend  
+# Frontend runs on http://localhost:5173
 ```
 
-## Useful Links
+### Production Deployment
 
-Learn more about the power of Turborepo:
+1. **Build for production:**
+   ```bash
+   pnpm run build
+   ```
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+2. **Start signaling server:**
+   ```bash
+   pnpm run start:signaling
+   ```
+
+3. **Deploy frontend:** The built frontend files are in `apps/frontend/dist/`
+
+## How to Use
+
+1. **Open the application** in your web browser at `http://localhost:5173`
+
+2. **Grant permissions** for camera and microphone when prompted
+
+3. **Create or join a room:**
+   - Enter a room ID (e.g., "ABC123") or click "Generate" for a random ID
+   - Share the room ID with another person
+   - Click "Join Room"
+
+4. **Video calling:**
+   - When another user joins the same room, video calling will start automatically
+   - Use the controls to toggle your camera/microphone
+   - Click the red button to leave the room
+
+## Architecture
+
+### Frontend (React + TypeScript)
+- **WebRTC Service**: Manages peer connections, media streams, and WebRTC signaling
+- **Signaling Service**: WebSocket client for real-time communication with server
+- **Media Hooks**: React hooks for device management and permissions
+- **UI Components**: Video display, controls, and room joining interface
+
+### Signaling Server (Node.js + WebSocket)
+- **Room Management**: Handles user connections and room state
+- **Message Routing**: Routes WebRTC signaling messages between peers
+- **REST API**: Health check and statistics endpoints
+
+### WebRTC Flow
+1. User joins room → signaling server manages room state
+2. When second user joins → server notifies first user
+3. First user creates WebRTC offer → sent via signaling server
+4. Second user creates answer → sent back via signaling server
+5. ICE candidates exchanged → direct peer-to-peer connection established
+6. Media streams flow directly between browsers (no server involvement)
+
+## Configuration
+
+### Environment Variables
+
+**Signaling Server:**
+- `PORT` - Server port (default: 3001)
+- `FRONTEND_URL` - Frontend URL for CORS (default: http://localhost:5173)
+
+**Frontend:**
+The signaling server URL is configured in `SignalingService.ts` (default: ws://localhost:3001)
+
+## Development Scripts
+
+- `pnpm run dev` - Run both frontend and signaling server
+- `pnpm run dev:frontend` - Run only frontend
+- `pnpm run dev:signaling` - Run only signaling server
+- `pnpm run build` - Build all applications
+- `pnpm run lint` - Lint all code
+- `pnpm run check-types` - TypeScript type checking
+
+## Browser Compatibility
+
+- Chrome 88+
+- Firefox 85+
+- Safari 14+
+- Edge 88+
+
+**Note:** HTTPS is required for WebRTC media access in production environments.
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Camera/microphone not working:**
+   - Ensure browser permissions are granted
+   - Check if devices are available and not used by other applications
+
+2. **Connection fails:**
+   - Verify signaling server is running
+   - Check browser console for WebSocket connection errors
+   - Ensure both users are using the same room ID
+
+3. **Video not displaying:**
+   - Check WebRTC connection status in browser developer tools
+   - Verify STUN servers are accessible
+   - Consider firewall/NAT traversal issues (may need TURN server for production)
+
+### STUN/TURN Servers
+
+The application uses Google's public STUN servers. For production use, consider:
+- Setting up your own STUN/TURN servers
+- Using commercial TURN services for better reliability
+- Configuring TURN servers for users behind strict NATs/firewalls
